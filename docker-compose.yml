@@ -1,0 +1,8 @@
+# Base docker compose
+version: '3'
+services:
+  stream:
+    build: ./stream
+    container_name: stream
+    env_file:
+      - secrets.list
