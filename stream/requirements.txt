@@ -1,1 +1,3 @@
 requests==2.23.0
+boto3==1.12.42
+rollbar==0.15.0
