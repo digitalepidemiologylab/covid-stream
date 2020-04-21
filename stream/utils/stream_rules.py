@@ -1,24 +1,29 @@
 import requests
 import logging
+import json
 
 logger = logging.getLogger(__name__)
-
-sample_rules = [
-    { 'value': 'dog has:images', 'tag': 'dog pictures' },
-    { 'value': 'cat has:images -grumpy', 'tag': 'cat pictures' },
-]
 
 class StreamRules:
     def __init__(self, auth):
         self.rules_url = "https://api.twitter.com/labs/1/tweets/stream/filter/rules"
+        self.config_path = 'rules.json'
         self.auth = auth
 
     def init(self):
-        logger.info('Initializing rules')
         current_rules = self.list_rules()
-        print(current_rules)
-        # self.delete_rules(current_rules)
-        # self.set_rules(sample_rules)
+        config = self.read_config()
+        if current_rules != config:
+            logger.info('Updating rules...')
+            self.delete_rules(current_rules)
+            self.set_rules(config)
+        else:
+            logger.info('Current rules are up to date!')
+
+    def read_config(self):
+        with open(self.config_path, 'r') as f:
+            config = json.load(f)
+        return config
 
     def list_rules(self):
         response = requests.get(self.rules_url, auth=self.auth)
