@@ -1,11 +1,14 @@
 import os
-import requests
+import sys
 import json
 import time
+import boto3
 import logging
+import rollbar
 from utils.stream_helpers import BearerTokenAuth
 from utils.stream_rules import StreamRules
-from utils.misc import report_error
+from utils.stream_runner import StreamRunner
+from utils.misc import report_error, TwitterError
 import config
 from urllib3.exceptions import ProtocolError
 from http.client import IncompleteRead
@@ -20,31 +23,28 @@ error_count_last_hour = 0
 
 # Obtain bearer token
 auth = BearerTokenAuth(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+client = boto3.client('firehose',
+        region_name=config.AWS_REGION,
+        aws_access_key_id=config.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY)
 
-stream_url = 'https://api.twitter.com/labs/1/tweets/stream/filter'
 
 def stream_connect():
-    # expand all these fields
-    expansions = [
-            'author_id',
-            'referenced_tweets.id',
-            'in_reply_to_user_id',
-            'attachments.media_keys',
-            'attachments.poll_ids',
-            'geo.place_id']
-    # make sure to use detailed format to get full tweet objects
-    params = {
-            'format': 'detailed',
-            'expansions': ','.join(expansions)
-            }
     logger.info('Connecting to stream...')
-    response = requests.get(stream_url, auth=auth, stream=True, params=params)
-    for line in response.iter_lines():
+    stream = StreamRunner()
+    resp = stream.connect(auth)
+    if resp.status_code != 200:
+        raise TwitterError(data=resp.json(), status_code=resp.status_code)
+    logger.info(f'Successfully connected to stream. Starting to collect data...')
+    count = 0
+    for line in resp.iter_lines():
         if line:
-            tweet = json.loads(line)
-            logger.info(tweet)
-            with open('output.jsonl', 'w') as f:
-                f.write(json.dumps(tweet) + '\n')
+            # add to AWS delivery stream
+            client.put_record(DeliveryStreamName=config.AWS_DELIVERY_STREAM_NAME, Record={'Data': line + '\n'.encode()})
+            # some logging
+            count += 1
+            if count % 100 == 0:
+                logger.info(f'Collected {count:,} tweets...')
 
 def hold_your_horses(base_delay=60, error_threshold=10):
     """
@@ -69,15 +69,17 @@ def hold_your_horses(base_delay=60, error_threshold=10):
     time.sleep(delay)
 
 def rollbar_init():
-    config = Config()
-    if config.ENV == 'prd':
-        rollbar.init(
-                config.ROLLBAR_ACCESS_TOKEN,
-                'production',
-                root=os.path.dirname(os.path.realpath(__file__)), # server root directory, makes tracebacks prettier
-                allow_logging_basic_config=False)
+    rollbar.init(
+            config.ROLLBAR_ACCESS_TOKEN,
+            'production',
+            root=os.path.dirname(os.path.realpath(__file__)), # server root directory, makes tracebacks prettier
+            allow_logging_basic_config=False,
+            enabled=config.ENV == 'prd') # only activate in production
 
 def main():
+    # Initialize rollbar
+    rollbar_init()
+    # Set up rules
     stream_rules = StreamRules(auth)
     stream_rules.init()
     while True:
@@ -87,12 +89,21 @@ def main():
             logger.info('Shutting down...')
             sys.exit()
         except (ProtocolError, IncompleteRead) as e:
+            logger.warning(e)
             # simply reconnect
             report_error(exception=True)
         except (ProtocolError, ConnectionError, ConnectionResetError) as e:
+            logger.warning(e)
+            report_error(exception=True)
             # wait a little
             hold_your_horses()
+        except TwitterError as e:
+            report_error(msg=str(e), exception=True)
+            hold_your_horses()
         except Exception as e:
+            logger.error('Uncaught stream exception')
+            if config.ENV == 'dev':
+                raise e
             report_error(msg='Uncaught stream exception', exception=True)
             hold_your_horses()
 

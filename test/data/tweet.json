@@ -1,0 +1,167 @@
+{
+    "data": {
+        "id": "123456789",
+        "created_at": "2020-04-21T14:56:34.000Z",
+        "text": "RT @user: example message",
+        "author_id": "1234",
+        "referenced_tweets": [
+            {
+                "type": "retweeted",
+                "id": "987654321"
+            }
+        ],
+        "attachments": {
+            "media_keys": [
+                "3_1252568381632454661"
+            ]
+        },
+        "entities": {
+            "urls": [
+                {
+                    "start": 57,
+                    "end": 80,
+                    "url": "https://t.co/xxx",
+                    "expanded_url": "https://fullurl.com",
+                    "display_url": "display.com",
+                    "status": 200,
+                    "title": "Stream Player"
+                },
+                {
+                    "start": 105,
+                    "end": 128,
+                    "url": "https://more.urls.com"
+                }
+            ],
+            "mentions": [
+                {
+                    "start": 3,
+                    "end": 13,
+                    "username": "another_user"
+                }
+            ]
+        },
+        "stats": {
+            "retweet_count": 406,
+            "reply_count": 0,
+            "like_count": 0,
+            "quote_count": 0
+        },
+        "possibly_sensitive": false,
+        "lang": "en",
+        "source": "<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android</a>",
+        "context_annotations": [
+            {
+                "domain": {
+                    "id": "45",
+                    "name": "Brand Vertical",
+                    "description": "Top level entities that describe a Brands industry"
+                },
+                "entity": {
+                    "id": "781974596165640193",
+                    "name": "Technology"
+                }
+            },
+            {
+                "domain": {
+                    "id": "46",
+                    "name": "Brand Category",
+                    "description": "Categories within Brand Verticals that narrow down the scope of Brands"
+                },
+                "entity": {
+                    "id": "781974596752842752",
+                    "name": "Services"
+                }
+            },
+            {
+                "domain": {
+                    "id": "47",
+                    "name": "Brand",
+                    "description": "Brands and Companies"
+                },
+                "entity": {
+                    "id": "10041893684",
+                    "name": "Instagram"
+                }
+            }
+        ],
+        "format": "detailed"
+    },
+    "includes": {
+        "tweets": [
+            {
+                "id": "987654321",
+                "created_at": "2020-04-21T12:02:28.000Z",
+                "text": "original tweet text",
+                "author_id": "32123",
+                "attachments": {
+                    "media_keys": [
+                        "3_1252568381632454661"
+                    ]
+                },
+                "entities": {
+                    "urls": [
+                        {
+                            "start": 42,
+                            "end": 65,
+                            "url": "https://t.co/sIQYHf9L8I",
+                            "expanded_url": "https://fullurl.com",
+                            "display_url": "display.url.com"
+                        },
+                        {
+                            "start": 90,
+                            "end": 113,
+                            "url": "https://t.co/2131"
+                        }
+                    ]
+                },
+                "stats": {
+                    "retweet_count": 406,
+                    "reply_count": 0,
+                    "like_count": 356,
+                    "quote_count": 36
+                },
+                "possibly_sensitive": false,
+                "lang": "en",
+                "source": "<a href=\"http://someuser.soshistagram.com\" rel=\"nofollow\">someuser.soshistagram.com</a>",
+                "format": "detailed"
+            }
+        ],
+        "users": [
+            {
+                "id": "21312321321",
+                "created_at": "2018-03-28T10:35:58.000Z",
+                "name": "full name",
+                "username": "username",
+                "protected": false,
+                "url": "",
+                "description": "user description",
+                "verified": false,
+                "profile_image_url": "https://pbs.twimg.com/profile_images/12312321.jpg",
+                "stats": {
+                    "followers_count": 26,
+                    "following_count": 421,
+                    "tweet_count": 225277,
+                    "listed_count": 0
+                },
+                "most_recent_tweet_id": "21321312321213",
+                "pinned_tweet_id": "12321312321",
+                "format": "detailed"
+            }
+        ],
+        "media": [
+            {
+                "media_key": "3_1252568381632454661",
+                "height": 896,
+                "width": 504,
+                "url": "https://pbs.twimg.com/media/some_photo.jpg",
+                "type": "photo"
+            }
+        ]
+    },
+    "matching_rules": [
+        {
+            "id": "1252612231260405766",
+            "tag": "cat pictures"
+        }
+    ]
+}

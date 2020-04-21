@@ -16,8 +16,9 @@ class StreamRules:
     def init(self):
         logger.info('Initializing rules')
         current_rules = self.list_rules()
-        self.delete_rules(current_rules)
-        self.set_rules(sample_rules)
+        print(current_rules)
+        # self.delete_rules(current_rules)
+        # self.set_rules(sample_rules)
 
     def list_rules(self):
         response = requests.get(self.rules_url, auth=self.auth)
