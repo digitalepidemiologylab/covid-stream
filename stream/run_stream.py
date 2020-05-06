@@ -5,10 +5,10 @@ import time
 import boto3
 import logging
 import rollbar
-from utils.stream_helpers import BearerTokenAuth
+import config
+from utils.bearer_token_auth import BearerTokenAuth
 from utils.stream_runner import StreamRunner
 from utils.misc import report_error, TwitterError
-import config
 from urllib3.exceptions import ProtocolError
 from http.client import IncompleteRead
 from threading import Thread
@@ -29,11 +29,10 @@ client = boto3.client('firehose',
 
 def stream_connect(partition):
     logger.info(f'Connecting to stream partition {partition}...')
-    stream = StreamRunner()
+    stream = StreamRunner(partition)
     auth = BearerTokenAuth(config.CONSUMER_KEY, config.CONSUMER_SECRET)
     bearer_token = auth.get_bearer_token()
-    resp = stream.connect(bearer_token, partition)
-    logger.info(resp)
+    resp = stream.connect(bearer_token)
     if resp.status_code != 200:
         try:
             te = TwitterError(data=resp.json(), status_code=resp.status_code)
