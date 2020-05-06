@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 time_last_error = 0
 error_count_last_hour = 0
 
-# Obtain bearer token
+# Firehose client
 client = boto3.client('firehose',
         region_name=config.AWS_REGION,
         aws_access_key_id=config.AWS_ACCESS_KEY_ID,
@@ -50,9 +50,9 @@ def stream_connect(partition):
             if count % 100 == 0:
                 logger.info(f'Collected {count:,} tweets...')
 
-def hold_your_horses(base_delay=60, error_threshold=10):
+def hold_your_horses(base_delay=1000, error_threshold=10, max_delay=3600):
     """
-    Waits a certain amount of time (based on number of errors in the last hour), but waits at least 1min.
+    Waits a certain amount of time (based on number of errors in the last hour), but waits at least 1000sec (>15min).
     If number of errors in last hour exceed error_threshold, shuts down stream
     """
     global time_last_error
@@ -61,8 +61,8 @@ def hold_your_horses(base_delay=60, error_threshold=10):
         report_error(msg=f'Error threshold of {error_threshold} reached, shutting down.')
         sys.exit()
     if (time.time() - time_last_error) < 3600:
-        # delay based on number of errors but not longer than 30min
-        delay = min(base_delay * error_count_last_hour, 1800)
+        # delay based on number of errors but not longer than max_delay
+        delay = min(base_delay * error_count_last_hour, max_delay)
         error_count_last_hour += 1
     else:
         # reset counter
