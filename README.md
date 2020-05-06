@@ -10,3 +10,6 @@ Before you start, make sure to have `docker` as well as `docker-compose` install
 4. `cp secrets.list.example secrets.list`
 5. Fill in `CONSUMER_KEY` and `CONSUMER_SECRET` of the app which links to the COVID stream. As well as the AWS credentials of the IAM user created under 2). You may want to provide a Rollbar token (for error notifications) if wanted.
 6. Run either `source build_production.sh` (runs in the background) or `source build_development.sh`. This will launch 4 streams for each partition.
+
+# Contact
+Feel free to write to me if you have questions martin.muller@epfl.ch
