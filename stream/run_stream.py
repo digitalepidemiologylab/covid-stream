@@ -74,6 +74,9 @@ def hold_your_horses(base_delay=60, error_threshold=10):
     time.sleep(delay)
 
 def rollbar_init():
+    if config.ROLLBAR_ACCESS_TOKEN == '':
+        logger.info('Rollbar access token has not been set. Ignoring.')
+        return
     rollbar.init(
             config.ROLLBAR_ACCESS_TOKEN,
             'production',
