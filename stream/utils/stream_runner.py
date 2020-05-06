@@ -6,7 +6,6 @@ logger = logging.getLogger(__name__)
 
 class StreamRunner:
     def __init__(self):
-        self.stream_url = 'https://api.twitter.com/labs/1/tweets/stream/filter'
         # expand all these fields
         expansions = [
                 'author_id',
@@ -22,6 +21,15 @@ class StreamRunner:
                 }
         self.connection = None
 
-    def connect(self, auth):
-        self.connection = requests.get(self.stream_url, auth=auth, stream=True, params=self.params)
-        return self.connection
+    def get_url(self, partition):
+        return f'https://api.twitter.com/labs/1/tweets/stream/covid19?partition={partition}'
+
+    def connect(self, bearer_token, partition):
+        url = self.get_url(partition)
+        headers = {
+                'User-Agent': 'TwitterDevCovid19StreamQuickStartPython',
+                'Authorization': f'Bearer {bearer_token}'
+                }
+        resp = requests.get(url, headers=headers, stream=True)
+        logger.info(resp)
+        return resp

@@ -10,7 +10,3 @@ RUN pip3 install -r requirements.txt
 # Copy files
 COPY . /home/app
 VOLUME ["/home/app"]
-RUN ls
-
-# development server:
-CMD ["python3", "run_stream.py"]

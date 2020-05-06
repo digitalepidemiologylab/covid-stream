@@ -6,12 +6,12 @@ import boto3
 import logging
 import rollbar
 from utils.stream_helpers import BearerTokenAuth
-from utils.stream_rules import StreamRules
 from utils.stream_runner import StreamRunner
 from utils.misc import report_error, TwitterError
 import config
 from urllib3.exceptions import ProtocolError
 from http.client import IncompleteRead
+from threading import Thread
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] [%(name)-12.12s]: %(message)s')
@@ -22,19 +22,24 @@ time_last_error = 0
 error_count_last_hour = 0
 
 # Obtain bearer token
-auth = BearerTokenAuth(config.CONSUMER_KEY, config.CONSUMER_SECRET)
 client = boto3.client('firehose',
         region_name=config.AWS_REGION,
         aws_access_key_id=config.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY)
 
-
-def stream_connect():
-    logger.info('Connecting to stream...')
+def stream_connect(partition):
+    logger.info(f'Connecting to stream partition {partition}...')
     stream = StreamRunner()
-    resp = stream.connect(auth)
+    auth = BearerTokenAuth(config.CONSUMER_KEY, config.CONSUMER_SECRET)
+    bearer_token = auth.get_bearer_token()
+    resp = stream.connect(bearer_token, partition)
+    logger.info(resp)
     if resp.status_code != 200:
-        raise TwitterError(data=resp.json(), status_code=resp.status_code)
+        try:
+            te = TwitterError(data=resp.json(), status_code=resp.status_code)
+        except:
+            raise Exception(resp)
+        raise te
     logger.info(f'Successfully connected to stream. Starting to collect data...')
     count = 0
     for line in resp.iter_lines():
@@ -79,12 +84,10 @@ def rollbar_init():
 def main():
     # Initialize rollbar
     rollbar_init()
-    # Set up rules
-    stream_rules = StreamRules(auth)
-    stream_rules.init()
+    partition = sys.argv[1]
     while True:
         try:
-            stream_connect()
+            stream_connect(partition)
         except KeyboardInterrupt:
             logger.info('Shutting down...')
             sys.exit()

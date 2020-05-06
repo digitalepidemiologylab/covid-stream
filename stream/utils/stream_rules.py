@@ -5,6 +5,7 @@ import json
 logger = logging.getLogger(__name__)
 
 class StreamRules:
+    """ Add/remove rules for filter streams. """
     def __init__(self, auth):
         self.rules_url = "https://api.twitter.com/labs/1/tweets/stream/filter/rules"
         self.config_path = 'rules.json'

@@ -1,8 +1,15 @@
 # Development config
 version: '3'
 services:
-  stream:
-    volumes:
-      - './stream/:/home/app'
+  stream_1:
+    stdin_open: true
+    tty: true
+  stream_2:
+    stdin_open: true
+    tty: true
+  stream_3:
+    stdin_open: true
+    tty: true
+  stream_4:
     stdin_open: true
     tty: true

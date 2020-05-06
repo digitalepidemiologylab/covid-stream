@@ -1,8 +1,35 @@
 # Base docker compose
 version: '3'
 services:
-  stream:
+  stream_1:
     build: ./stream
-    container_name: stream
+    volumes:
+      - './stream/:/home/app'
+    container_name: stream_1
     env_file:
       - secrets.list
+    command: python3 run_stream.py 1
+  stream_2:
+    build: ./stream
+    volumes:
+      - './stream/:/home/app'
+    container_name: stream_2
+    env_file:
+      - secrets.list
+    command: python3 run_stream.py 2
+  stream_3:
+    build: ./stream
+    volumes:
+      - './stream/:/home/app'
+    container_name: stream_3
+    env_file:
+      - secrets.list
+    command: python3 run_stream.py 3
+  stream_4:
+    build: ./stream
+    volumes:
+      - './stream/:/home/app'
+    container_name: stream_4
+    env_file:
+      - secrets.list
+    command: python3 run_stream.py 4
